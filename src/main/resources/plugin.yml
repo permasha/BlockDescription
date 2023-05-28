@@ -1,0 +1,7 @@
+name: BlockDescription
+version: '${project.version}'
+main: ru.permasha.blockdescription.BlockDescription
+api-version: 1.19
+commands:
+  blockdesc:
+    description: Add attribute of block
