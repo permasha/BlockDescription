@@ -1,0 +1,5 @@
+blockdesc:
+  radius: 10
+  message: "\n%attributes%"
+  attribute: "\n &6%index% &7%player%&6: &f%description%"
+  symbol: "&e?"
