@@ -2,6 +2,7 @@ name: BlockDescription
 version: '${project.version}'
 main: ru.permasha.blockdescription.BlockDescription
 api-version: 1.19
+softdepend: [HolographicDisplays]
 commands:
   blockdesc:
     description: Add attribute of block

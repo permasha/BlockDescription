@@ -1,8 +1,10 @@
 package ru.permasha.blockdescription.database;
 
+import org.bukkit.Bukkit;
 import ru.permasha.blockdescription.BlockDescription;
 
 import java.sql.*;
+import java.util.HashMap;
 import java.util.logging.Level;
 
 public abstract class Database {
@@ -10,6 +12,7 @@ public abstract class Database {
     BlockDescription plugin;
     Connection connection;
     public String table = "blocks_table";
+    public HashMap<String, String> dataCache = new HashMap<>();
 
     public Database(BlockDescription instance) {
         plugin = instance;
@@ -20,15 +23,27 @@ public abstract class Database {
     public abstract void load();
 
     public void initialize(){
-        connection = getSQLConnection();
-        try{
-            PreparedStatement ps = connection.prepareStatement("SELECT * FROM " + table + " WHERE location = ?");
-            ResultSet rs = ps.executeQuery();
-            close(ps,rs);
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            connection = getSQLConnection();
+            try {
+                PreparedStatement ps = connection.prepareStatement("SELECT * FROM " + table);
+                ResultSet rs = ps.executeQuery();
 
-        } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, "Unable to retreive connection", ex);
+                while (rs.next()) {
+                    dataCache.put(rs.getString("location"), rs.getString("attributes"));
+                }
+                close(ps, rs);
+            } catch (SQLException ex) {
+                plugin.getLogger().log(Level.SEVERE, "Unable to retreive connection", ex);
+            }
+        });
+    }
+
+    public String getEnteredAttributes(String locationStr) {
+        if (!dataCache.isEmpty() && dataCache.containsKey(locationStr)) {
+            return dataCache.get(locationStr);
         }
+        return null;
     }
 
     /**
@@ -36,60 +51,19 @@ public abstract class Database {
      *
      * @param string location
      */
-    public String removeLocation(String string) {
+    public void removeLocation(String string) {
         Connection conn = null;
         PreparedStatement ps = null;
         try {
             conn = getSQLConnection();
             ps = conn.prepareStatement("DELETE FROM " + table + " WHERE location = '"+string+"';");
-            ps.executeQuery();
+            ps.executeUpdate();
+            dataCache.remove(string);
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, sqlConnectionExecute(), ex);
         } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, sqlConnectionClose(), ex);
-            }
+            close(ps, conn);
         }
-        return "";
-    }
-
-    /**
-     * Get JSONArray attributes of string location
-     *
-     * @param string location
-     */
-    public String getEnteredAttributes(String string) {
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs;
-        try {
-            conn = getSQLConnection();
-            ps = conn.prepareStatement("SELECT * FROM " + table + " WHERE location = '"+string+"';");
-
-            rs = ps.executeQuery();
-            while(rs.next()){
-                if(rs.getString("location").equalsIgnoreCase(string.toLowerCase())){
-                    return rs.getString("attributes");
-                }
-            }
-        } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, sqlConnectionExecute(), ex);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, sqlConnectionClose(), ex);
-            }
-        }
-        return null;
     }
 
     /**
@@ -103,21 +77,29 @@ public abstract class Database {
         try {
             conn = getSQLConnection();
             ps = conn.prepareStatement("REPLACE INTO " + table + " (location,attributes) VALUES(?,?)");
-            ps.setString(1, location.toLowerCase());
-
+            ps.setString(1, location);
             ps.setString(2, attributes);
             ps.executeUpdate();
+            dataCache.put(location, attributes);
         } catch (SQLException ex) {
             plugin.getLogger().log(Level.SEVERE, sqlConnectionExecute(), ex);
         } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, sqlConnectionClose(), ex);
-            }
+            close(ps, conn);
+        }
+    }
+
+    public HashMap<String, String> getDataCache() {
+        return dataCache;
+    }
+
+    public void close(PreparedStatement ps, Connection conn) {
+        try {
+            if (ps != null)
+                ps.close();
+            if (conn != null)
+                conn.close();
+        } catch (SQLException ex) {
+            plugin.getLogger().log(Level.SEVERE, sqlConnectionClose(), ex);
         }
     }
 

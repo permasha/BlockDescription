@@ -22,7 +22,7 @@ public class SQLite extends Database {
     public String SQLiteCreateTokensTable =
             "CREATE TABLE IF NOT EXISTS blocks_table (" +
                     "`location` varchar(32) NOT NULL," +
-                    "`attributes` varchar(255) NOT NULL," +
+                    "`attributes` varchar(32) NOT NULL," +
                     "PRIMARY KEY (`location`)" +
                     ");";
 

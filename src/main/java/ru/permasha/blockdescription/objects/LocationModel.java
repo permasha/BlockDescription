@@ -1,6 +1,5 @@
 package ru.permasha.blockdescription.objects;
 
-import com.google.gson.Gson;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
