@@ -24,19 +24,19 @@ public class PlayerMove implements Listener {
 
     @EventHandler
     public void onMove(PlayerMoveEvent event) {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            Player player = event.getPlayer();
+        Player player = event.getPlayer();
 
-            Location from = event.getFrom();
-            Location to = event.getTo();
+        Location from = event.getFrom();
+        Location to = event.getTo();
 
-            if (from.getBlockX() != to.getBlockX() || from.getBlockY() != to.getBlockY() || from.getBlockZ() != to.getBlockZ()) {
+        if (from.getBlockX() != to.getBlockX() || from.getBlockY() != to.getBlockY() || from.getBlockZ() != to.getBlockZ()) {
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
                 plugin.getDatabase().getDataCache().keySet().forEach(locStr -> {
                     Location location = plugin.getAttributesManager().fromJsonLocation(locStr);
                     plugin.getHologramManager().showPlayerHologram(player, location);
                 });
-            }
-        });
+            });
+        }
     }
 
 }
