@@ -1,6 +1,6 @@
 name: BlockDescription
 version: '${project.version}'
-main: ru.permasha.blockdescription.BlockDescription
+main: ru.permasha.blockdescription.Main
 api-version: 1.19
 softdepend: [HolographicDisplays]
 commands:

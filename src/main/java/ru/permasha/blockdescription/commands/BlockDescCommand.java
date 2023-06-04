@@ -21,11 +21,6 @@ public class BlockDescCommand implements CommandExecutor {
 
     public BlockDescCommand(BlockDescription plugin) {
         this.plugin = plugin;
-        this.init(plugin);
-    }
-
-    private void init(JavaPlugin plugin) {
-        plugin.getCommand("blockdesc").setExecutor(this);
     }
 
     @Override

@@ -8,17 +8,24 @@ import ru.permasha.blockdescription.listeners.PlayerMove;
 import ru.permasha.blockdescription.managers.AttributesManager;
 import ru.permasha.blockdescription.managers.HologramManager;
 
-public final class BlockDescription extends JavaPlugin {
+public class BlockDescription {
+
+    private JavaPlugin plugin;
 
     private AttributesManager attributesManager;
     private HologramManager hologramManager;
     private Database database;
 
-    @Override
-    public void onEnable() {
-        PlayerMove playerMove = new PlayerMove(this);
-        BlockDescCommand blockDescCommand = new BlockDescCommand(this);
-        saveDefaultConfig();
+    public BlockDescription(JavaPlugin plugin) {
+        this.init(plugin);
+    }
+
+    private void init(JavaPlugin plugin) {
+        this.plugin = plugin;
+        plugin.getServer().getPluginManager().registerEvents(new PlayerMove(this), plugin);
+        plugin.getCommand("blockdesc").setExecutor(plugin);
+        plugin.saveDefaultConfig();
+
         attributesManager = new AttributesManager(this);
         hologramManager = new HologramManager(this);
 
@@ -26,9 +33,8 @@ public final class BlockDescription extends JavaPlugin {
         database.load();
     }
 
-    @Override
-    public void onDisable() {
-
+    public JavaPlugin getPlugin() {
+        return plugin;
     }
 
     public AttributesManager getAttributesManager() {

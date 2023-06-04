@@ -15,11 +15,6 @@ public class PlayerMove implements Listener {
 
     public PlayerMove(BlockDescription plugin) {
         this.plugin = plugin;
-        this.init(plugin);
-    }
-
-    private void init(JavaPlugin plugin) {
-        plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
     @EventHandler
@@ -30,7 +25,7 @@ public class PlayerMove implements Listener {
         Location to = event.getTo();
 
         if (from.getBlockX() != to.getBlockX() || from.getBlockY() != to.getBlockY() || from.getBlockZ() != to.getBlockZ()) {
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            Bukkit.getScheduler().runTaskAsynchronously(plugin.getPlugin(), () -> {
                 plugin.getDatabase().getDataCache().keySet().forEach(locStr -> {
                     Location location = plugin.getAttributesManager().fromJsonLocation(locStr);
                     plugin.getHologramManager().showPlayerHologram(player, location);
