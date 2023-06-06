@@ -1,6 +1,7 @@
 package ru.permasha.blockdescription.database;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import ru.permasha.blockdescription.BlockDescription;
 
 import java.sql.*;
@@ -23,18 +24,19 @@ public abstract class Database {
     public abstract void load();
 
     public void initialize(){
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin.getPlugin(), () -> {
             connection = getSQLConnection();
             try {
                 PreparedStatement ps = connection.prepareStatement("SELECT * FROM " + table);
                 ResultSet rs = ps.executeQuery();
 
                 while (rs.next()) {
-                    dataCache.put(rs.getString("location"), rs.getString("attributes"));
+                    String jsonLoc = rs.getString("location");
+                    dataCache.put(jsonLoc, rs.getString("attributes"));
                 }
                 close(ps, rs);
             } catch (SQLException ex) {
-                plugin.getLogger().log(Level.SEVERE, "Unable to retreive connection", ex);
+                plugin.getPlugin().getLogger().log(Level.SEVERE, "Unable to retreive connection", ex);
             }
         });
     }
@@ -60,7 +62,7 @@ public abstract class Database {
             ps.executeUpdate();
             dataCache.remove(string);
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, sqlConnectionExecute(), ex);
+            plugin.getPlugin().getLogger().log(Level.SEVERE, sqlConnectionExecute(), ex);
         } finally {
             close(ps, conn);
         }
@@ -82,7 +84,7 @@ public abstract class Database {
             ps.executeUpdate();
             dataCache.put(location, attributes);
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, sqlConnectionExecute(), ex);
+            plugin.getPlugin().getLogger().log(Level.SEVERE, sqlConnectionExecute(), ex);
         } finally {
             close(ps, conn);
         }
@@ -99,7 +101,7 @@ public abstract class Database {
             if (conn != null)
                 conn.close();
         } catch (SQLException ex) {
-            plugin.getLogger().log(Level.SEVERE, sqlConnectionClose(), ex);
+            plugin.getPlugin().getLogger().log(Level.SEVERE, sqlConnectionClose(), ex);
         }
     }
 
@@ -122,9 +124,9 @@ public abstract class Database {
     }
 
     private void errorExecute(Exception ex){
-        plugin.getLogger().log(Level.SEVERE, "Couldn't execute SQL statement: ", ex);
+        plugin.getPlugin().getLogger().log(Level.SEVERE, "Couldn't execute SQL statement: ", ex);
     }
     private void errorClose(Exception ex){
-        plugin.getLogger().log(Level.SEVERE, "Failed to close SQL connection: ", ex);
+        plugin.getPlugin().getLogger().log(Level.SEVERE, "Failed to close SQL connection: ", ex);
     }
 }

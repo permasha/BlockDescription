@@ -3,6 +3,8 @@ package ru.permasha.blockdescription.managers;
 import me.filoghost.holographicdisplays.api.HolographicDisplaysAPI;
 import me.filoghost.holographicdisplays.api.hologram.Hologram;
 import me.filoghost.holographicdisplays.api.hologram.VisibilitySettings;
+import me.filoghost.holographicdisplays.api.internal.HolographicDisplaysAPIProvider;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -15,7 +17,25 @@ public class HologramManager {
 
     public HologramManager(BlockDescription plugin) {
         this.plugin = plugin;
-        this.api = HolographicDisplaysAPI.get(plugin);
+        this.api = HolographicDisplaysAPI.get(plugin.getPlugin());
+        refreshHolograms();
+    }
+
+    public void refreshHolograms() {
+        Bukkit.getScheduler().runTaskLater(plugin.getPlugin(), () -> {
+            plugin.getDatabase().getDataCache().keySet().forEach(locStr -> {
+                Location location = plugin.getAttributesManager().fromJsonLocation(locStr);
+                createHologram(location);
+            });
+        }, 100L);
+    }
+
+    public void clearHolograms() {
+        plugin.getDatabase().getDataCache().keySet().forEach(locStr -> {
+            Location location = plugin.getAttributesManager().fromJsonLocation(locStr)
+                    .add(0.5D, 0.5D, 0.5D);
+            removeHologram(location);
+        });
     }
 
     public void createHologram(Location location) {
@@ -47,10 +67,11 @@ public class HologramManager {
         Hologram hologram = getHologramOnLocation(formattedLoc);
         int radius = plugin.getAttributesManager().getRadius();
         if (hologram != null) {
+            VisibilitySettings visibilitySettings = hologram.getVisibilitySettings();
             if ((location.distance(player.getLocation()) <= radius) && (location.getBlock().getType() != Material.AIR)) {
-                hologram.getVisibilitySettings().setIndividualVisibility(player, VisibilitySettings.Visibility.VISIBLE);
+                visibilitySettings.setIndividualVisibility(player, VisibilitySettings.Visibility.VISIBLE);
             } else {
-                hologram.getVisibilitySettings().setIndividualVisibility(player, VisibilitySettings.Visibility.HIDDEN);
+                visibilitySettings.setIndividualVisibility(player, VisibilitySettings.Visibility.HIDDEN);
             }
         }
     }

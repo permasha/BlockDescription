@@ -55,13 +55,13 @@ public class AttributesManager {
      * @return colorize string
      */
     public String getFormatMessageAttributes(Location location) {
-        String cfgStr = plugin.getConfig().getString("blockdesc.message")
+        String cfgStr = plugin.getPlugin().getConfig().getString("blockdesc.message")
                 .replace("%attributes%", getMessageAttribute(location));
         return colorize(cfgStr);
     }
 
     public String getFormatMessageAttribute(int index, Attribute attribute) {
-        return colorize(plugin.getConfig().getString("blockdesc.attribute"))
+        return colorize(plugin.getPlugin().getConfig().getString("blockdesc.attribute"))
                 .replace("%index%", ""+index)
                 .replace("%player%", attribute.getPlayerName())
                 .replace("%description%", attribute.getDescription());
@@ -71,14 +71,14 @@ public class AttributesManager {
      * @return Radius for holograms
      */
     public int getRadius() {
-        return plugin.getConfig().getInt("blockdesc.radius");
+        return plugin.getPlugin().getConfig().getInt("blockdesc.radius");
     }
 
     /**
      * @return Symbol for holograms
      */
     public String getSymbol() {
-        return colorize(plugin.getConfig().getString("blockdesc.symbol"));
+        return colorize(plugin.getPlugin().getConfig().getString("blockdesc.symbol"));
     }
 
     public Location fromJsonLocation(String json) {

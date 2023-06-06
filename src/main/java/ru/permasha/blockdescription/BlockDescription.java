@@ -23,7 +23,7 @@ public class BlockDescription {
     private void init(JavaPlugin plugin) {
         this.plugin = plugin;
         plugin.getServer().getPluginManager().registerEvents(new PlayerMove(this), plugin);
-        plugin.getCommand("blockdesc").setExecutor(plugin);
+        plugin.getCommand("blockdesc").setExecutor(new BlockDescCommand(this));
         plugin.saveDefaultConfig();
 
         attributesManager = new AttributesManager(this);

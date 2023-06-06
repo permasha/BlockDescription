@@ -4,9 +4,16 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin {
 
+    BlockDescription module;
+
     @Override
     public void onEnable() {
-        BlockDescription module = new BlockDescription(this);
+        module = new BlockDescription(this);
+    }
+
+    @Override
+    public void onDisable() {
+        module.getHologramManager().clearHolograms();
     }
 
 }
